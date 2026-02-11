@@ -31,7 +31,7 @@ export default function Home() {
       <main className="flex min-h-screen w-full max-w-7xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start gap-8">
         <div className="w-full">
           <h2 className="text-xl font-bold mb-4 dark:text-white">Raleigh, NC</h2>
-          <Map center={{ longitude: -78.6382, latitude: 35.7796 }} />
+          <Map center={{ longitude: -78.6382, latitude: 35.7796 }} extraPoints={[{ longitude: -78.645, latitude: 35.785 }]} />
         </div>
 
         {userLocation && (

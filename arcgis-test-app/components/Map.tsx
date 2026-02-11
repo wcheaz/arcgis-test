@@ -17,11 +17,15 @@ export interface MapProps {
         longitude: number;
         latitude: number;
     };
+    extraPoints?: Array<{
+        longitude: number;
+        latitude: number;
+    }>;
     zoom?: number;
     enableLocate?: boolean;
 }
 
-export default function Map({ center, zoom = 12, enableLocate = false }: MapProps) {
+export default function Map({ center, zoom = 12, enableLocate = false, extraPoints }: MapProps) {
     const [view, setView] = useState<any>(null);
 
     useEffect(() => {
@@ -48,7 +52,24 @@ export default function Map({ center, zoom = 12, enableLocate = false }: MapProp
         });
         graphicsLayer.add(graphic);
 
-    }, [view, center]);
+        if (extraPoints) {
+            extraPoints.forEach(p => {
+                const extraGraphic = new Graphic({
+                    geometry: new Point(p),
+                    symbol: new SimpleMarkerSymbol({
+                        style: "square",
+                        color: [0, 0, 255], // Blue
+                        outline: {
+                            color: [255, 255, 255], // White
+                            width: 2
+                        }
+                    })
+                });
+                graphicsLayer.add(extraGraphic);
+            });
+        }
+
+    }, [view, center, extraPoints]);
 
     return (
         <div className="map-container">
