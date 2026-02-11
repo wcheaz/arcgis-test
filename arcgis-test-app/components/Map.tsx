@@ -1,6 +1,8 @@
 'use client';
 import { ArcgisMap, ArcgisLocate } from '@arcgis/map-components-react';
 import Point from '@arcgis/core/geometry/Point';
+import '@arcgis/map-components/dist/components/arcgis-map';
+import '@arcgis/map-components/dist/components/arcgis-locate';
 
 export default function Map() {
     return (
