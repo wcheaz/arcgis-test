@@ -25,10 +25,15 @@ export interface MapProps {
     }>;
     zoom?: number;
     enableLocate?: boolean;
+    userLocation?: {
+        longitude: number;
+        latitude: number;
+    };
+    showCenterGraphic?: boolean;
     onMapClick?: (point: { longitude: number; latitude: number }) => void;
 }
 
-export default function Map({ center, zoom = 12, enableLocate = false, extraPoints, onMapClick }: MapProps) {
+export default function Map({ center, zoom = 12, enableLocate = false, extraPoints, userLocation, showCenterGraphic = true, onMapClick }: MapProps) {
     const [view, setView] = useState<any>(null);
 
     useEffect(() => {
@@ -54,7 +59,7 @@ export default function Map({ center, zoom = 12, enableLocate = false, extraPoin
                     paths: paths
                 }),
                 symbol: new SimpleLineSymbol({
-                    color: [226, 119, 40], // Match center point color
+                    color: [255, 0, 0], // Red
                     width: 2,
                     style: "solid"
                 })
@@ -62,19 +67,53 @@ export default function Map({ center, zoom = 12, enableLocate = false, extraPoin
             graphicsLayer.add(lineGraphic);
         }
 
-        const point = new Point(center);
-        const graphic = new Graphic({
-            geometry: point,
-            symbol: new SimpleMarkerSymbol({
-                style: "circle",
-                color: [226, 119, 40],
-                outline: {
-                    color: [255, 255, 255],
-                    width: 2
-                }
-            })
-        });
-        graphicsLayer.add(graphic);
+        if (userLocation) {
+            const userPath = [
+                [center.longitude, center.latitude],
+                [userLocation.longitude, userLocation.latitude]
+            ];
+
+            const userLineGraphic = new Graphic({
+                geometry: new Polyline({
+                    paths: [userPath]
+                }),
+                symbol: new SimpleLineSymbol({
+                    color: [0, 0, 255], // Blue
+                    width: 2,
+                    style: "solid"
+                })
+            });
+            graphicsLayer.add(userLineGraphic);
+
+            const userPointGraphic = new Graphic({
+                geometry: new Point(userLocation),
+                symbol: new SimpleMarkerSymbol({
+                    style: "circle",
+                    color: [0, 0, 255], // Blue
+                    outline: {
+                        color: [255, 255, 255], // White
+                        width: 2
+                    }
+                })
+            });
+            graphicsLayer.add(userPointGraphic);
+        }
+
+        if (showCenterGraphic) {
+            const point = new Point(center);
+            const graphic = new Graphic({
+                geometry: point,
+                symbol: new SimpleMarkerSymbol({
+                    style: "circle",
+                    color: [226, 119, 40],
+                    outline: {
+                        color: [255, 255, 255],
+                        width: 2
+                    }
+                })
+            });
+            graphicsLayer.add(graphic);
+        }
 
         if (extraPoints) {
             extraPoints.forEach(p => {
@@ -104,7 +143,7 @@ export default function Map({ center, zoom = 12, enableLocate = false, extraPoin
             handle.remove();
         };
 
-    }, [view, center, extraPoints, onMapClick]);
+    }, [view, center, extraPoints, userLocation, showCenterGraphic, onMapClick]);
 
     return (
         <div className="map-container">
