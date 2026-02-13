@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 
 import dynamic from "next/dynamic";
 
@@ -37,24 +37,28 @@ export default function Home() {
     }
   }, []);
 
-  const handleLocationClick = (index: number, point: { longitude: number; latitude: number }) => {
-    const newLocations = [...locations];
+  const handlePresetMapClick = useCallback((point: { longitude: number; latitude: number }) => {
+    setLocations(prevLocations => {
+      const newLocations = [...prevLocations];
+      newLocations[currentLocationIndex] = {
+        ...newLocations[currentLocationIndex],
+        extraPoints: [
+          ...(newLocations[currentLocationIndex].extraPoints || []),
+          point
+        ]
+      };
+      return newLocations;
+    });
+  }, [currentLocationIndex]);
 
-    // Create a new object for the specific location to avoid mutating the original
-    newLocations[index] = {
-      ...newLocations[index],
-      extraPoints: [
-        ...(newLocations[index].extraPoints || []),
-        point
-      ]
-    };
-
-    setLocations(newLocations);
-  };
-
-  const handleUserMapClick = (point: { longitude: number; latitude: number }) => {
+  const handleUserMapClick = useCallback((point: { longitude: number; latitude: number }) => {
     setUserExtraPoints(prev => [...prev, point]);
-  };
+  }, []);
+
+  const presetCenter = useMemo(() => ({
+    latitude: locations[currentLocationIndex].latitude,
+    longitude: locations[currentLocationIndex].longitude
+  }), [locations, currentLocationIndex]);
 
   const handleNext = () => {
     setCurrentLocationIndex((prevIndex) => (prevIndex + 1) % locations.length);
@@ -102,10 +106,10 @@ export default function Home() {
             </button>
           </div>
           <Map
-            center={{ latitude: locations[currentLocationIndex].latitude, longitude: locations[currentLocationIndex].longitude }}
+            center={presetCenter}
             extraPoints={locations[currentLocationIndex].extraPoints}
             userLocation={userLocation || undefined}
-            onMapClick={(point) => handleLocationClick(currentLocationIndex, point)}
+            onMapClick={handlePresetMapClick}
           />
         </div>
 

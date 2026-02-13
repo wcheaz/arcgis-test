@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, memo, useMemo } from 'react';
 import { ArcgisMap, ArcgisLocate, ArcgisHome } from '@arcgis/map-components-react';
 import Point from '@arcgis/core/geometry/Point';
 import Polyline from '@arcgis/core/geometry/Polyline';
@@ -33,8 +33,10 @@ export interface MapProps {
     onMapClick?: (point: { longitude: number; latitude: number }) => void;
 }
 
-export default function Map({ center, zoom = 12, enableLocate = false, extraPoints, userLocation, showCenterGraphic = true, onMapClick }: MapProps) {
+function Map({ center, zoom = 12, enableLocate = false, extraPoints, userLocation, showCenterGraphic = true, onMapClick }: MapProps) {
     const [view, setView] = useState<any>(null);
+
+    const centerPoint = useMemo(() => new Point(center), [center.latitude, center.longitude]);
 
     useEffect(() => {
         if (!view) return;
@@ -132,6 +134,19 @@ export default function Map({ center, zoom = 12, enableLocate = false, extraPoin
             });
         }
 
+        if (extraPoints && extraPoints.length > 0) {
+            const zoomTargets = [new Point(center)];
+            extraPoints.forEach(p => zoomTargets.push(new Point(p)));
+
+            if (userLocation) {
+                zoomTargets.push(new Point(userLocation));
+            }
+
+            view.goTo(zoomTargets, {
+                padding: { top: 100, right: 100, bottom: 100, left: 100 }
+            });
+        }
+
         const handle = view.on("click", (event: any) => {
             if (onMapClick) {
                 const { longitude, latitude } = event.mapPoint;
@@ -149,7 +164,7 @@ export default function Map({ center, zoom = 12, enableLocate = false, extraPoin
         <div className="map-container">
             <ArcgisMap
                 basemap="streets-navigation-vector"
-                center={new Point(center)}
+                center={centerPoint}
                 zoom={zoom}
                 onArcgisViewReadyChange={(e: any) => setView(e.target.view)}
             >
@@ -158,3 +173,5 @@ export default function Map({ center, zoom = 12, enableLocate = false, extraPoin
         </div>
     );
 }
+
+export default memo(Map);
