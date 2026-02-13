@@ -80,10 +80,11 @@ export default function Home() {
   }
 
 
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-7xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start gap-8">
-        <div className="w-full flex flex-col gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-5 min-h-screen w-full bg-zinc-50 font-sans dark:bg-black">
+      <div className="sm:col-span-4 flex flex-col justify-center items-center p-8 sm:p-16 gap-8 w-full bg-white dark:bg-black">
+        <div className="w-full max-w-7xl flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <button
               onClick={handlePrev}
@@ -115,7 +116,7 @@ export default function Home() {
 
 
         {userLocation && (
-          <div className="w-full">
+          <div className="w-full max-w-7xl">
             <h2 className="text-xl font-bold mb-4 dark:text-white">Your Location</h2>
             <Map
               center={userLocation}
@@ -136,8 +137,9 @@ export default function Home() {
             )}
           </div>
         )}
-      </main>
-
+      </div>
+      {/* Right side 1/5th */}
+      <div className="hidden sm:block sm:col-span-1"></div>
     </div>
   );
 }
