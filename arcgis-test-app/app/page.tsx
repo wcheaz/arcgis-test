@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 
 
 const Map = dynamic(() => import("@/components/Map"), { ssr: false });
+import CoordinateList from '@/components/CoordinateList';
 import { calculateDistance } from '../utils/distance';
 import { LOCATIONS, PROXIMITY_THRESHOLD_MILES, Location } from '../data/locations';
 
@@ -139,7 +140,22 @@ export default function Home() {
         )}
       </div>
       {/* Right side 1/5th */}
-      <div className="hidden sm:block sm:col-span-1"></div>
+      <div className="hidden sm:flex sm:col-span-1 flex-col gap-4 p-4 border-l border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-black overflow-y-auto h-screen sticky top-0">
+        <div className="flex-1 overflow-hidden flex flex-col">
+          <CoordinateList
+            title={`${locations[currentLocationIndex].name} Points`}
+            points={locations[currentLocationIndex].extraPoints || []}
+          />
+        </div>
+        {userLocation && (
+          <div className="flex-1 overflow-hidden flex flex-col">
+            <CoordinateList
+              title="Your Location Points"
+              points={userExtraPoints}
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
 }
