@@ -206,7 +206,7 @@ export default function Home() {
 
         {userLocation && (
           <div className="w-full max-w-7xl">
-            <h2 className="text-xl font-bold mb-4 dark:text-white">Your Location</h2>
+            <h2 className="text-xl font-bold mb-4 dark:text-white text-center">Your Location</h2>
             <Map
               center={userLocation}
               userLocation={userLocation}
