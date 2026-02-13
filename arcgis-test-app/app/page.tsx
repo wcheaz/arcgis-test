@@ -72,6 +72,37 @@ export default function Home() {
     setUserFocusPoint(point);
   }, []);
 
+  const handlePresetPointDelete = useCallback((pointToDelete: { longitude: number; latitude: number }) => {
+    setLocations(prevLocations => {
+      const newLocations = [...prevLocations];
+      const currentLoc = newLocations[currentLocationIndex];
+      if (currentLoc.extraPoints) {
+        newLocations[currentLocationIndex] = {
+          ...currentLoc,
+          extraPoints: currentLoc.extraPoints.filter(p =>
+            p.latitude !== pointToDelete.latitude || p.longitude !== pointToDelete.longitude
+          )
+        };
+      }
+      return newLocations;
+    });
+    // If we delete the focused point, clear focus
+    if (presetFocusPoint && presetFocusPoint.latitude === pointToDelete.latitude && presetFocusPoint.longitude === pointToDelete.longitude) {
+      setPresetFocusPoint(null);
+    }
+  }, [currentLocationIndex, presetFocusPoint]);
+
+  const handleUserPointDelete = useCallback((pointToDelete: { longitude: number; latitude: number }) => {
+    setUserExtraPoints(prev => prev.filter(p =>
+      p.latitude !== pointToDelete.latitude || p.longitude !== pointToDelete.longitude
+    ));
+    if (userFocusPoint && userFocusPoint.latitude === pointToDelete.latitude && userFocusPoint.longitude === pointToDelete.longitude) {
+      setUserFocusPoint(null);
+    }
+  }, [userFocusPoint]);
+
+
+
   // Reset focus point when changing locations so map can auto-fit again if needed, 
   // though auto-fit might triggering on mount/prop change is intricate. 
   // Actually, if we change location, we probably want the new map to fit all points, 
@@ -173,6 +204,7 @@ export default function Home() {
             title={`${locations[currentLocationIndex].name} Points`}
             points={locations[currentLocationIndex].extraPoints || []}
             onPointClick={handlePresetListClick}
+            onPointDelete={handlePresetPointDelete}
           />
         </div>
         {userLocation && (
@@ -181,6 +213,7 @@ export default function Home() {
               title="Your Location Points"
               points={userExtraPoints}
               onPointClick={handleUserListClick}
+              onPointDelete={handleUserPointDelete}
             />
           </div>
         )}
