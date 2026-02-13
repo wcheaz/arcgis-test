@@ -185,15 +185,16 @@ export default function Home() {
               onMapClick={handleUserMapClick}
               focusPoint={userFocusPoint}
             />
-            {nearbyLocationNames.length > 0 && (
-              <div className="fixed bottom-4 right-4 flex flex-col gap-2 pointer-events-none">
-                {nearbyLocationNames.map(name => (
-                  <div key={name} className="proximity-alert">
-                    You are within {PROXIMITY_THRESHOLD_MILES} miles of {name}!
-                  </div>
-                ))}
+          </div>
+        )}
+
+        {userLocation && nearbyLocationNames.length > 0 && (
+          <div className="fixed bottom-4 right-4 sm:right-[calc(20%+1rem)] flex flex-col gap-2 pointer-events-none">
+            {nearbyLocationNames.map(name => (
+              <div key={name} className="proximity-alert">
+                You are within {PROXIMITY_THRESHOLD_MILES} miles of {name}!
               </div>
-            )}
+            ))}
           </div>
         )}
       </div>
@@ -203,6 +204,8 @@ export default function Home() {
           <CoordinateList
             title={`${locations[currentLocationIndex].name} Points`}
             points={locations[currentLocationIndex].extraPoints || []}
+            center={presetCenter}
+            userLocation={userLocation || undefined}
             onPointClick={handlePresetListClick}
             onPointDelete={handlePresetPointDelete}
           />
@@ -212,6 +215,7 @@ export default function Home() {
             <CoordinateList
               title="Your Location Points"
               points={userExtraPoints}
+              center={userLocation}
               onPointClick={handleUserListClick}
               onPointDelete={handleUserPointDelete}
             />
