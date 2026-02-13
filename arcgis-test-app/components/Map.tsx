@@ -2,7 +2,9 @@
 import { useEffect, useState } from 'react';
 import { ArcgisMap, ArcgisLocate, ArcgisHome } from '@arcgis/map-components-react';
 import Point from '@arcgis/core/geometry/Point';
+import Polyline from '@arcgis/core/geometry/Polyline';
 import SimpleMarkerSymbol from '@arcgis/core/symbols/SimpleMarkerSymbol';
+import SimpleLineSymbol from '@arcgis/core/symbols/SimpleLineSymbol';
 import GraphicsLayer from '@arcgis/core/layers/GraphicsLayer';
 import Graphic from '@arcgis/core/Graphic';
 import '@arcgis/map-components/dist/components/arcgis-map';
@@ -23,9 +25,10 @@ export interface MapProps {
     }>;
     zoom?: number;
     enableLocate?: boolean;
+    onMapClick?: (point: { longitude: number; latitude: number }) => void;
 }
 
-export default function Map({ center, zoom = 12, enableLocate = false, extraPoints }: MapProps) {
+export default function Map({ center, zoom = 12, enableLocate = false, extraPoints, onMapClick }: MapProps) {
     const [view, setView] = useState<any>(null);
 
     useEffect(() => {
@@ -38,6 +41,27 @@ export default function Map({ center, zoom = 12, enableLocate = false, extraPoin
         }
 
         graphicsLayer.removeAll();
+
+        // Draw lines first so they appear behind points
+        if (extraPoints && extraPoints.length > 0) {
+            const paths = extraPoints.map(p => [
+                [center.longitude, center.latitude],
+                [p.longitude, p.latitude]
+            ]);
+
+            const lineGraphic = new Graphic({
+                geometry: new Polyline({
+                    paths: paths
+                }),
+                symbol: new SimpleLineSymbol({
+                    color: [226, 119, 40], // Match center point color
+                    width: 2,
+                    style: "solid"
+                })
+            });
+            graphicsLayer.add(lineGraphic);
+        }
+
         const point = new Point(center);
         const graphic = new Graphic({
             geometry: point,
@@ -69,7 +93,18 @@ export default function Map({ center, zoom = 12, enableLocate = false, extraPoin
             });
         }
 
-    }, [view, center, extraPoints]);
+        const handle = view.on("click", (event: any) => {
+            if (onMapClick) {
+                const { longitude, latitude } = event.mapPoint;
+                onMapClick({ longitude, latitude });
+            }
+        });
+
+        return () => {
+            handle.remove();
+        };
+
+    }, [view, center, extraPoints, onMapClick]);
 
     return (
         <div className="map-container">
