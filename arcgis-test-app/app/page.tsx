@@ -27,6 +27,7 @@ export default function Home() {
 
   const [presetFocusPoint, setPresetFocusPoint] = useState<{ longitude: number; latitude: number } | null>(null);
   const [userFocusPoint, setUserFocusPoint] = useState<{ longitude: number; latitude: number } | null>(null);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -152,7 +153,37 @@ export default function Home() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
               </svg>
             </button>
-            <h2 className="text-xl font-bold dark:text-white text-center flex-1">{locations[currentLocationIndex].name}</h2>
+            <div className="flex-1 flex justify-center relative">
+              <button
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                className="text-xl font-bold dark:text-white flex items-center gap-2 hover:opacity-80 transition"
+              >
+                {locations[currentLocationIndex].name}
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={`w-5 h-5 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                </svg>
+              </button>
+
+              {isDropdownOpen && (
+                <>
+                  <div className="fixed inset-0 z-10" onClick={() => setIsDropdownOpen(false)} />
+                  <div className="absolute top-full mt-2 w-64 max-h-60 overflow-y-auto bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg shadow-xl z-20 flex flex-col py-1">
+                    {locations.map((loc, index) => (
+                      <button
+                        key={index}
+                        onClick={() => {
+                          setCurrentLocationIndex(index);
+                          setIsDropdownOpen(false);
+                        }}
+                        className={`text-left px-4 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition dark:text-zinc-200 ${index === currentLocationIndex ? 'font-bold bg-zinc-50 dark:bg-zinc-800' : ''}`}
+                      >
+                        {loc.name}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
             <button
               onClick={handleNext}
               className="p-2 rounded-full bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 transition"
