@@ -8,9 +8,10 @@ interface Coordinate {
 interface CoordinateListProps {
     title: string;
     points: Coordinate[] | undefined;
+    onPointClick?: (point: Coordinate) => void;
 }
 
-const CoordinateList: React.FC<CoordinateListProps> = ({ title, points }) => {
+const CoordinateList: React.FC<CoordinateListProps> = ({ title, points, onPointClick }) => {
     return (
         <div className="flex flex-col h-full bg-white dark:bg-zinc-900 shadow-md rounded-lg overflow-hidden border border-zinc-200 dark:border-zinc-800">
             <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50 backdrop-blur-sm">
@@ -25,7 +26,8 @@ const CoordinateList: React.FC<CoordinateListProps> = ({ title, points }) => {
                     points.map((point, index) => (
                         <div
                             key={index}
-                            className="p-3 bg-zinc-50 dark:bg-zinc-800/50 rounded-md border border-zinc-100 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors duration-200 group"
+                            onClick={() => onPointClick && onPointClick(point)}
+                            className="p-3 bg-zinc-50 dark:bg-zinc-800/50 rounded-md border border-zinc-100 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors duration-200 group cursor-pointer"
                         >
                             <div className="flex items-center justify-between mb-1">
                                 <span className="text-xs font-bold text-zinc-400 group-hover:text-blue-500 transition-colors">#{index + 1}</span>

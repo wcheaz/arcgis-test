@@ -20,6 +20,14 @@ export default function Home() {
   const [currentLocationIndex, setCurrentLocationIndex] = useState(0);
   const [userExtraPoints, setUserExtraPoints] = useState<Array<{ longitude: number; latitude: number }>>([]);
 
+
+
+
+
+
+  const [presetFocusPoint, setPresetFocusPoint] = useState<{ longitude: number; latitude: number } | null>(null);
+  const [userFocusPoint, setUserFocusPoint] = useState<{ longitude: number; latitude: number } | null>(null);
+
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -55,6 +63,23 @@ export default function Home() {
   const handleUserMapClick = useCallback((point: { longitude: number; latitude: number }) => {
     setUserExtraPoints(prev => [...prev, point]);
   }, []);
+
+  const handlePresetListClick = useCallback((point: { longitude: number; latitude: number }) => {
+    setPresetFocusPoint(point);
+  }, []);
+
+  const handleUserListClick = useCallback((point: { longitude: number; latitude: number }) => {
+    setUserFocusPoint(point);
+  }, []);
+
+  // Reset focus point when changing locations so map can auto-fit again if needed, 
+  // though auto-fit might triggering on mount/prop change is intricate. 
+  // Actually, if we change location, we probably want the new map to fit all points, 
+  // so clearing focusPoint is good.
+  useEffect(() => {
+    setPresetFocusPoint(null);
+  }, [currentLocationIndex]);
+
 
   const presetCenter = useMemo(() => ({
     latitude: locations[currentLocationIndex].latitude,
@@ -112,6 +137,7 @@ export default function Home() {
             extraPoints={locations[currentLocationIndex].extraPoints}
             userLocation={userLocation || undefined}
             onMapClick={handlePresetMapClick}
+            focusPoint={presetFocusPoint}
           />
         </div>
 
@@ -126,6 +152,7 @@ export default function Home() {
               showCenterGraphic={false}
               extraPoints={userExtraPoints}
               onMapClick={handleUserMapClick}
+              focusPoint={userFocusPoint}
             />
             {nearbyLocationNames.length > 0 && (
               <div className="fixed bottom-4 right-4 flex flex-col gap-2 pointer-events-none">
@@ -145,6 +172,7 @@ export default function Home() {
           <CoordinateList
             title={`${locations[currentLocationIndex].name} Points`}
             points={locations[currentLocationIndex].extraPoints || []}
+            onPointClick={handlePresetListClick}
           />
         </div>
         {userLocation && (
@@ -152,6 +180,7 @@ export default function Home() {
             <CoordinateList
               title="Your Location Points"
               points={userExtraPoints}
+              onPointClick={handleUserListClick}
             />
           </div>
         )}

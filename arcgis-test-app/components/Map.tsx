@@ -31,12 +31,26 @@ export interface MapProps {
     };
     showCenterGraphic?: boolean;
     onMapClick?: (point: { longitude: number; latitude: number }) => void;
+    focusPoint?: { longitude: number; latitude: number } | null;
 }
 
-function Map({ center, zoom = 12, enableLocate = false, extraPoints, userLocation, showCenterGraphic = true, onMapClick }: MapProps) {
+function Map({ center, zoom = 12, enableLocate = false, extraPoints, userLocation, showCenterGraphic = true, onMapClick, focusPoint }: MapProps) {
     const [view, setView] = useState<any>(null);
 
     const centerPoint = useMemo(() => new Point(center), [center.latitude, center.longitude]);
+
+    useEffect(() => {
+        if (!view || !focusPoint) return;
+
+        view.goTo({
+            target: new Point(focusPoint),
+            zoom: 15
+        }, {
+            duration: 1000,
+            easing: "ease-in-out"
+        });
+
+    }, [view, focusPoint]);
 
     useEffect(() => {
         if (!view) return;
@@ -134,7 +148,7 @@ function Map({ center, zoom = 12, enableLocate = false, extraPoints, userLocatio
             });
         }
 
-        if (extraPoints && extraPoints.length > 0) {
+        if (extraPoints && extraPoints.length > 0 && !focusPoint) {
             const zoomTargets = [new Point(center)];
             extraPoints.forEach(p => zoomTargets.push(new Point(p)));
 
@@ -158,7 +172,7 @@ function Map({ center, zoom = 12, enableLocate = false, extraPoints, userLocatio
             handle.remove();
         };
 
-    }, [view, center, extraPoints, userLocation, showCenterGraphic, onMapClick]);
+    }, [view, center, extraPoints, userLocation, showCenterGraphic, onMapClick, focusPoint]);
 
     return (
         <div className="map-container">
